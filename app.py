@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, session
 from prediction import predict_disease
 import sqlite3
@@ -17,12 +18,14 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key")
 
+# Security configuration
 app.secret_key = os.environ.get("SECRET_KEY")
 
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+
+
 @app.route("/")
 def home():
 
@@ -49,12 +52,12 @@ def home():
 
     ages = con.execute("""
         SELECT
-        CASE
-            WHEN age < 20 THEN 'Below 20'
-            WHEN age < 40 THEN '20-39'
-            WHEN age < 60 THEN '40-59'
-            ELSE '60+'
-        END, COUNT(*)
+            CASE
+                WHEN age < 20 THEN 'Below 20'
+                WHEN age < 40 THEN '20-39'
+                WHEN age < 60 THEN '40-59'
+                ELSE '60+'
+            END, COUNT(*)
         FROM skin_records
         GROUP BY 1
         ORDER BY 1
@@ -75,6 +78,7 @@ def home():
 
     con.close()
 
+    # Disease chart
     plt.figure(figsize=(8, 4))
     plt.bar([x[0] for x in diseases], [x[1] for x in diseases])
     plt.title("Disease-wise Distribution")
@@ -84,6 +88,7 @@ def home():
     plt.savefig(os.path.join(STATIC_DIR, "disease_chart.png"))
     plt.close()
 
+    # Age chart
     plt.figure(figsize=(6, 4))
     plt.pie(
         [x[1] for x in ages],
@@ -95,6 +100,7 @@ def home():
     plt.savefig(os.path.join(STATIC_DIR, "age_chart.png"))
     plt.close()
 
+    # Gender chart
     plt.figure(figsize=(6, 4))
     plt.pie(
         [x[1] for x in genders],
@@ -106,6 +112,7 @@ def home():
     plt.savefig(os.path.join(STATIC_DIR, "gender_chart.png"))
     plt.close()
 
+    # Region chart
     plt.figure(figsize=(9, 5))
     plt.barh(
         [x[0] for x in regions],
@@ -126,9 +133,6 @@ def home():
         diseases=diseases,
         accuracy=59.09
     )
-
-
-
 
 
 @app.route("/predict", methods=["GET", "POST"])
@@ -226,84 +230,6 @@ def predict():
     )
 
 
-    result = None
-    confidence = None
-    precautions = []
-
-    disease_precautions = {
-        "ACK": [
-            "Protect your skin from excessive sunlight.",
-            "Use sunscreen and protective clothing.",
-            "Consult a dermatologist."
-        ],
-        "BCC": [
-            "Consult a dermatologist for evaluation.",
-            "Protect the affected area from sunlight.",
-            "Avoid scratching or removing the lesion."
-        ],
-        "MEL": [
-            "Seek prompt evaluation from a dermatologist.",
-            "Do not delay medical assessment.",
-            "Avoid attempting self-treatment."
-        ],
-        "NEV": [
-            "Monitor changes in size, shape or colour.",
-            "Consult a dermatologist if changes occur.",
-            "Avoid injuring the affected area."
-        ],
-        "SCC": [
-            "Consult a dermatologist promptly.",
-            "Protect your skin from sunlight.",
-            "Avoid attempting self-treatment."
-        ],
-        "SEK": [
-            "Consult a dermatologist if unsure about the lesion.",
-            "Avoid scratching or removing it yourself.",
-            "Seek evaluation if it changes or causes discomfort."
-        ]
-    }
-
-    if request.method == "POST":
-
-        age = int(request.form["age"])
-        gender = request.form["gender"]
-        region = request.form["region"]
-
-        itch = request.form["itch"]
-        grew = request.form["grew"]
-        hurt = request.form["hurt"]
-        changed = request.form["changed"]
-        bleed = request.form["bleed"]
-        elevation = request.form["elevation"]
-
-        result, confidence = predict_disease(
-            age, gender, region, itch, grew,
-            hurt, changed, bleed, elevation
-        )
-
-        precautions = disease_precautions.get(result, [])
-        con = sqlite3.connect(DATABASE)
-
-        con.execute("""
-            INSERT INTO prediction_history
-            (age, gender, region, itch, grew, hurt,
-             changed, bleed, elevation, predicted_disease, confidence)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            age, gender, region, itch, grew, hurt,
-            changed, bleed, elevation, result, confidence
-        ))
-
-        con.commit()
-        con.close()
-
-    return render_template(
-        "predict.html",
-        result=result,
-        confidence=confidence,
-        precautions=precautions
-    )
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -323,6 +249,7 @@ def login():
 
     return render_template("login.html", error=error)
 
+
 @app.route("/admin")
 def admin():
 
@@ -339,6 +266,7 @@ def admin():
     con.close()
 
     return render_template("admin.html", records=records)
+
 
 @app.route("/delete/<int:id>")
 def delete_records(id):
@@ -357,16 +285,19 @@ def delete_records(id):
 
     return redirect("/admin")
 
+
 @app.route("/logout")
 def logout():
 
     session.clear()
     return redirect("/login")
 
+
 @app.route("/diseases")
 def diseases():
 
     return render_template("diseases.html")
+
 
 @app.route("/history")
 def history():
@@ -381,9 +312,11 @@ def history():
         SELECT * FROM prediction_history
         ORDER BY id DESC
     """).fetchall()
+
     con.close()
+
     return render_template("history.html", records=records)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
