@@ -3,6 +3,9 @@ from prediction import predict_disease
 import sqlite3
 import os
 import matplotlib
+from dotenv import load_dotenv
+
+load_dotenv()
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -16,9 +19,10 @@ os.makedirs(STATIC_DIR, exist_ok=True)
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key")
 
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+app.secret_key = os.environ.get("SECRET_KEY")
 
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 @app.route("/")
 def home():
 
