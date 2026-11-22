@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Skin Disease Prediction System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                Skin Disease Prediction System
+            </a>
+
+            <div class="d-flex gap-2">
+                <a href="/" class="btn btn-outline-light btn-sm">Home</a>
+                <a href="/predict" class="btn btn-outline-light btn-sm">Predict</a>
+                <a href="/diseases" class="btn btn-outline-light btn-sm">Diseases</a>
+                <a href="/login" class="btn btn-outline-light btn-sm">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container py-4">
+
+        <div class="mb-4">
+            <h2 class="fw-bold">Dashboard</h2>
+            <p class="text-secondary">
+                Dataset analysis and model performance overview
+            </p>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Total Records</p>
+                        <h2 class="fw-bold">{{ total }}</h2>
+                        <small class="text-muted">Dataset entries</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Total Patients</p>
+                        <h2 class="fw-bold">{{ patients }}</h2>
+                        <small class="text-muted">Unique patients</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Disease Categories</p>
+                        <h2 class="fw-bold">{{ disease_count }}</h2>
+                        <small class="text-muted">Diagnostic classes</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Model Accuracy</p>
+                        <h2 class="fw-bold">{{ accuracy }}%</h2>
+                        <small class="text-muted">Decision Tree model</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-5 mb-3">
+            <h4 class="fw-bold">Dataset Analysis</h4>
+            <p class="text-secondary">
+                Visual representation of dataset records
+            </p>
+        </div>
+
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">
+                            Disease-wise Distribution
+                        </h5>
+
+                        <img src="{{ url_for('static', filename='disease_chart.png') }}"
+                             class="img-fluid"
+                             alt="Disease distribution chart">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">
+                            Age Group Distribution
+                        </h5>
+
+                        <img src="{{ url_for('static', filename='age_chart.png') }}"
+                             class="img-fluid"
+                             alt="Age group distribution chart">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">
+                            Gender Distribution
+                        </h5>
+
+                        <img src="{{ url_for('static', filename='gender_chart.png') }}"
+                             class="img-fluid"
+                             alt="Gender distribution chart">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">
+                            Lesion Location Distribution
+                        </h5>
+
+                        <img src="{{ url_for('static', filename='region_chart.png') }}"
+                             class="img-fluid"
+                             alt="Lesion location chart">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card border-0 shadow-sm mt-5">
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">
+                    Disease-wise Record Summary
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Disease Code</th>
+                                <th>Number of Records</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for disease, count in diseases %}
+                            <tr>
+                                <td>{{ disease }}</td>
+                                <td>{{ count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
